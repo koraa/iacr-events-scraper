@@ -29,19 +29,17 @@ def Xdaterange(inp, sel):
     r = X(inp, sel)
     if r is None:
         return None
-    sa, sz = ifdef(
-        re.match("^[\w\s].*:\s*(.*) - (.*)$", r),
+    _, sa, sz = ifdef(
+        re.match("^(.*:)?\s*(.*) - (.*)$", r),
         lambda v : v.groups()
-    ) or  [None, None]
-    if sa is None or sz is None:
-        return [None, None]
-    dz = dateparser.parse(sz, settings={
+    ) or  [None, None, None]
+    dz = ifdef(sa, lambda v : dateparser.parse(v, settings={
         'PREFER_DATES_FROM': 'future'
-    })
-    da = dateparser.parse(sz, settings={
+    }))
+    da = ifdef(sz, lambda v : dateparser.parse(v, settings={
         'PREFER_DATES_FROM': 'future',
         'RELATIVE_BASE': dz if dz is not None else datetime.datetime.now()
-    })
+    }))
     return [da, dz]
 
 class IACREventsScraper(scrapy.Spider):
@@ -102,10 +100,17 @@ def main():
         else:
             P('summary', ev['title'])
 
+        start, end = ev['date']
+        start = start or end
+        end = end or start
+        if start is None or end is None:
+            print("[WARNING] EVENT WITHOUT TIME; IGNORING IT.", ev['short'], file=sys.stderr)
+
         P('url', ev['url'])
         P('location', ev['location'])
-        P('dtstart', ev['date'][0])
-        P('dtend', ev['date'][1])
+        P('dtstart', start)
+        P('dtstamp', start)
+        P('dtend', end)
 
         D('Submission-Deadline', ev['deadline'])
         D('Notification-Date', ev['notification-date'])
