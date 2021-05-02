@@ -22,5 +22,7 @@ pipenv run scrape > iacr-events.ics 2>/dev/null
 
 # Copying
 
+![](./cc0-8x31.png)
+
 Copyright (C) 2021 by Karolin Varner. Licensed under [CC0 V1.0](http://creativecommons.org/publicdomain/zero/1.0/).
 You may copy and use in any way but entirely on your own risk.
