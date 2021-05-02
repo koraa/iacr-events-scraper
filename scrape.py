@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-import scrapy, dateparser, re, datetime, icalendar, sys, hashlib
+import scrapy, dateparser, re, datetime, icalendar, sys, uuid
 from scrapy.crawler import CrawlerProcess, Crawler
 
 tnow = datetime.datetime.now()
@@ -9,7 +9,9 @@ def ifdef(v, fn):
     return None if v is None else fn(v)
 
 def X(inp, sel):
-    return inp.css(sel).get()
+    return ifdef(
+        inp.css(sel).getall(),
+        lambda v : " ".join(str(x) for x in v))
 
 def Xstr(inp, sel):
     return X(inp, sel).strip()
@@ -20,7 +22,7 @@ def Xdate(inp, sel):
         return None
     s, = ifdef(
         re.match("^[\w\s].*:(.*)$", r),
-        lambda v : v.groups())
+        lambda v : v.groups()) or [None]
     if s is None:
         return None
     return dateparser.parse(s, settings={
@@ -84,7 +86,6 @@ def main():
     cal.add('prodid', '-//IACR Events Calender//mxm.dk//')
     cal.add('version', '2.0')
 
-    ids = set()
     for ev in crawl():
         iev = icalendar.Event()
         def P(k, v):
@@ -95,6 +96,8 @@ def main():
         def D(k, v):
             if v is not None:
                 desc.append(f'{k}: {v}')
+
+        P('uid', uuid.uuid4())
 
         name = ev['short']
         if ev['short'] is not None:
@@ -121,13 +124,6 @@ def main():
 
         P('description', "\n".join(desc).strip())
 
-        uid = hashlib.blake2s(bytes(f'IACR-EVENTS---{name}---{start}---{end}', "utf-8")).hexdigest()[0:32]
-        P('uid', uid)
-        if uid in ids:
-            print("[WARNING] DUPLICATE EVENT; DISCARDING", name, file=sys.stderr)
-            continue
-
-        ids.add(uid)
         cal.add_component(iev)
 
     sys.stdout.write(str(cal.to_ical(), 'utf-8'))
