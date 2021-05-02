@@ -3,6 +3,8 @@
 import scrapy, dateparser, re, datetime, icalendar, sys
 from scrapy.crawler import CrawlerProcess, Crawler
 
+tnow = datetime.datetime.now()
+
 def ifdef(v, fn):
     return None if v is None else fn(v)
 
@@ -38,7 +40,7 @@ def Xdaterange(inp, sel):
     }))
     da = ifdef(sa, lambda v : dateparser.parse(v, settings={
         'PREFER_DATES_FROM': 'future',
-        'RELATIVE_BASE': dz if dz is not None else datetime.datetime.now()
+        'RELATIVE_BASE': dz if dz is not None else tnow
     }))
     return [da, dz]
 
@@ -109,8 +111,8 @@ def main():
         P('url', ev['url'])
         P('location', ev['location'])
         P('dtstart', start)
-        P('dtstamp', start)
         P('dtend', end)
+        P('dtstamp', tnow)
 
         D('Submission-Deadline', ev['deadline'])
         D('Notification-Date', ev['notification-date'])
