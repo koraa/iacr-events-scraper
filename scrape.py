@@ -37,11 +37,8 @@ def Xdaterange(inp, sel):
         re.match("^(.*:)?\s*(.*) - (.*)$", r),
         lambda v : v.groups()
     ) or  [None, None, None]
-    dz = ifdef(sz, lambda v : dateparser.parse(v, settings={
-        'PREFER_DATES_FROM': 'future'
-    }))
+    dz = ifdef(sz, lambda v : dateparser.parse(v))
     da = ifdef(sa, lambda v : dateparser.parse(v, settings={
-        'PREFER_DATES_FROM': 'future',
         'RELATIVE_BASE': dz if dz is not None else tnow
     }))
     return [da, dz]
