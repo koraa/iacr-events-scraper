@@ -11,6 +11,7 @@ Install [pipenv](https://pipenv.pypa.io) – the python dependency manager, use 
 and then execute the following:
 
 ```sh
+pipenv install
 pipenv run scrape
 ```
 
