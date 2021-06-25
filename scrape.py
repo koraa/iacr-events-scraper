@@ -82,6 +82,9 @@ def main():
     cal = icalendar.Calendar()
     cal.add('prodid', '-//IACR Events Calender//mxm.dk//')
     cal.add('version', '2.0')
+    cal.add('X-WR-CALNAME', 'IACR Events') # https://stackoverflow.com/questions/16341006/how-to-set-a-title-description-for-a-subscription-calendar-webcal-ics-file
+    cal.add('name', 'IACR Events')
+    cal.add('description', 'International Association for Cryptologic Research Events; conferences and other events on cryptography.')
 
     for ev in crawl():
         iev = icalendar.Event()
@@ -112,12 +115,12 @@ def main():
 
         P('url', ev['url'])
         P('location', ev['location'])
-        P('dtstart', start)
-        P('dtend', end)
+        P('dtstart', ifdef(start, lambda x : x.date()))
+        P('dtend', ifdef(end, lambda x : x.date() + datetime.timedelta(days=1)))
         P('dtstamp', tnow)
 
-        D('Submission-Deadline', ev['deadline'])
-        D('Notification-Date', ev['notification-date'])
+        D('Submission-Deadline', ifdef(ev['deadline'], lambda x : x.date()))
+        D('Notification-Date', ifdef(ev['notification-date'], lambda x : x.date()))
 
         P('description', "\n".join(desc).strip())
 

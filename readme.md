@@ -5,6 +5,13 @@ This scrapes https://iacr.org/events/ and exports it as a calendar file.
 I host a version of this for myself under https://arrrr.cupdev.net/iacr-events/iacr-events.ics
 (No warranty for accuracy or availability).
 
+IACR now offers calendar on the [event site](https://iacr.org/events/); this
+scraper includes submission and notification dates in the event description
+and uses shorthand names for conferences, providing long names in the description.
+
+The IACR calendar also gives some weird year long events (e.g. IFIP Summer School starting in 2020 ending in 2021)
+which are clearly artifacts.
+
 # Usage
 
 Install [pipenv](https://pipenv.pypa.io) – the python dependency manager, use python three
